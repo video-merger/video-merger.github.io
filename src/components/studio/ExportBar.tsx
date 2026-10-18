@@ -90,7 +90,7 @@ export const ExportBar: React.FC<ExportBarProps> = ({
             </select>
           </div>
 
-          {/* Quality Preset Selector */}
+          {/* Quality Preset Selector - High Quality */}
           <div className="flex items-center gap-1.5 text-xs">
             <span className="hidden md:inline text-olive-500 dark:text-sage-400">
               Quality:
@@ -98,14 +98,12 @@ export const ExportBar: React.FC<ExportBarProps> = ({
             <select
               value={exportQuality}
               onChange={(e) =>
-                onChangeExportQuality(e.target.value as 'ultra' | 'high' | 'standard')
+                onChangeExportQuality(e.target.value as 'high')
               }
-              className="px-2.5 py-1.5 rounded-lg border border-sand-200 dark:border-studio-border bg-sand-50 dark:bg-studio-card text-moss-800 dark:text-sand-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage-400"
-              title="Export Bitrate & Fidelity"
+              className="px-2.5 py-1.5 rounded-lg border border-sand-200 dark:border-studio-border bg-sand-50 dark:bg-studio-card text-moss-800 dark:text-sand-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage-400 cursor-pointer"
+              title="High Quality (14 Mbps High Profile)"
             >
-              <option value="ultra">Ultra (Original / 22 Mbps)</option>
               <option value="high">High (14 Mbps)</option>
-              <option value="standard">Standard (8 Mbps)</option>
             </select>
           </div>
 

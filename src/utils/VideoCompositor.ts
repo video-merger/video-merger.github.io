@@ -265,12 +265,12 @@ export class VideoCompositor {
     }
 
     // 4. Check Codec Support and Initialize Muxer
-    const quality = this.config.quality || 'ultra';
-    let videoBitrate = 22_000_000; // Ultra / Original (22 Mbps VBR)
-    let audioBitrate = 256_000;    // Studio quality 256 kbps AAC
-    if (quality === 'high') {
-      videoBitrate = 14_000_000;
-      audioBitrate = 192_000;
+    const quality = this.config.quality || 'high';
+    let videoBitrate = 14_000_000; // High Quality (14 Mbps VBR)
+    let audioBitrate = 192_000;    // High Quality AAC 192 kbps
+    if (quality === 'ultra') {
+      videoBitrate = 22_000_000;
+      audioBitrate = 256_000;
     } else if (quality === 'standard') {
       videoBitrate = 8_000_000;
       audioBitrate = 128_000;

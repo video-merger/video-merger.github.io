@@ -43,7 +43,7 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
   const [masterVideoVolume, setMasterVideoVolume] = useState<number>(1.0);
   const [soundtrackVolume, setSoundtrackVolume] = useState<number>(0.8);
   const [exportFormat, setExportFormat] = useState<'mp4' | 'webm'>('mp4');
-  const [exportQuality, setExportQuality] = useState<'ultra' | 'high' | 'standard'>('ultra');
+  const [exportQuality, setExportQuality] = useState<'high' | 'ultra' | 'standard'>('high');
 
   // Active clip and modals
   const [activeClipIndex, setActiveClipIndex] = useState<number>(0);
