@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { VideoMergerStudio } from '../../components/VideoMergerStudio';
 import { type LanguageCode, getTranslations } from '../../i18n/translations';
-import { Shield, Sparkles, UploadCloud, Film, Image as ImageIcon, Music, Split, Sliders } from 'lucide-react';
 
 export function getStaticPaths() {
   return [
@@ -20,77 +20,5 @@ const t = getTranslations(currentLang);
 ---
 
 <BaseLayout currentLang={currentLang}>
-  <div class="relative overflow-hidden pt-12 pb-20 sm:pt-16 sm:pb-28">
-    <!-- Subtle ambient background gradients using palette -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-sand-200/30 via-sage-400/10 to-transparent dark:from-sand-300/5 dark:via-sage-400/5 pointer-events-none blur-3xl -z-10" />
-
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <!-- Security pill -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sand-200/60 dark:bg-studio-surface border border-sand-300/50 dark:border-studio-border text-moss-700 dark:text-sand-300 text-xs font-semibold mb-8 shadow-sm">
-        <Sparkles class="w-3.5 h-3.5 text-moss-600 dark:text-sand-300" />
-        <span>{t.nav.privacyBadge}</span>
-      </div>
-
-      <!-- Main Headline -->
-      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-moss-800 dark:text-sand-100 leading-[1.15]">
-        {t.hero.title}
-      </h1>
-      <p class="mt-4 sm:mt-6 text-base sm:text-xl text-olive-600 dark:text-sage-300 max-w-3xl mx-auto font-normal leading-relaxed">
-        {t.hero.subtitle}
-      </p>
-
-      <!-- Primary Action Dropzone Card (Stage 1 Scaffold) -->
-      <div class="mt-10 sm:mt-12 max-w-2xl mx-auto">
-        <div class="group relative rounded-3xl border-2 border-dashed border-sand-300 dark:border-studio-border bg-white/70 dark:bg-studio-surface/80 p-8 sm:p-12 shadow-luxury-light dark:shadow-luxury-dark backdrop-blur-sm transition-all hover:border-moss-500 dark:hover:border-sand-300">
-          <div class="flex flex-col items-center justify-center">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-sand-300 to-sage-400 dark:from-sand-300/20 dark:to-sage-400/20 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-200">
-              <UploadCloud class="w-8 h-8 sm:w-10 sm:h-10 text-moss-700 dark:text-sand-300" />
-            </div>
-
-            <!-- Primary CTA Button -->
-            <button
-              id="choose-files-btn"
-              type="button"
-              class="px-8 py-3.5 rounded-xl font-bold text-base sm:text-lg bg-moss-600 hover:bg-moss-700 text-white dark:bg-sand-300 dark:text-studio-surface dark:hover:bg-sand-400 shadow-md hover:shadow-lg active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-sage-400/30"
-            >
-              {t.hero.chooseFiles}
-            </button>
-
-            <p class="mt-4 text-sm font-medium text-olive-500 dark:text-sage-400">
-              {t.hero.dropHint}
-            </p>
-
-            <p class="mt-2 text-xs text-olive-400 dark:text-studio-border">
-              {t.hero.supportedFormats}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feature Highlights Grid -->
-      <div class="mt-16 sm:mt-20 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-        {t.hero.features.map((feature, idx) => (
-          <div class="p-4 rounded-2xl bg-white/60 dark:bg-studio-surface/60 border border-sand-200/60 dark:border-studio-border/60 text-left shadow-sm">
-            <div class="w-8 h-8 rounded-lg bg-sand-200/70 dark:bg-studio-card flex items-center justify-center text-moss-700 dark:text-sand-300 mb-3">
-              {idx === 0 && <Film class="w-4 h-4" />}
-              {idx === 1 && <ImageIcon class="w-4 h-4" />}
-              {idx === 2 && <Music class="w-4 h-4" />}
-              {idx === 3 && <Split class="w-4 h-4" />}
-              {idx === 4 && <Sliders class="w-4 h-4" />}
-            </div>
-            <h3 class="text-xs sm:text-sm font-bold text-moss-800 dark:text-sand-200">{feature.title}</h3>
-            <p class="mt-1 text-[11px] text-olive-500 dark:text-sage-400 leading-snug">{feature.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      <!-- Privacy Guarantee Callout -->
-      <div class="mt-12 sm:mt-16 p-4 rounded-2xl bg-sage-400/10 dark:bg-studio-card/60 border border-sage-400/20 max-w-xl mx-auto flex items-center gap-3 text-left">
-        <Shield class="w-5 h-5 text-moss-600 dark:text-sand-300 shrink-0" />
-        <p class="text-xs text-moss-700 dark:text-sage-300 font-medium">
-          {t.hero.securityGuarantee}
-        </p>
-      </div>
-    </div>
-  </div>
+  <VideoMergerStudio client:load currentLang={currentLang} />
 </BaseLayout>
