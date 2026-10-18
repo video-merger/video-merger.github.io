@@ -1,0 +1,141 @@
+---
+import { type LanguageCode, getTranslations } from '../i18n/translations';
+
+interface Props {
+  currentLang?: LanguageCode;
+}
+
+const { currentLang = 'en' } = Astro.props;
+const t = getTranslations(currentLang);
+
+const canonicalUrl = currentLang === 'en'
+  ? 'https://video-merger.github.io/'
+  : `https://video-merger.github.io/${currentLang}`;
+
+const structuredData = [
+  // 1. WebApplication Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: t.seo.metaTitle,
+    alternateName: 'Video Merger Online',
+    url: canonicalUrl,
+    description: t.seo.metaDescription,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'All (Web Browser)',
+    browserRequirements: 'Requires modern browser with HTML5 Canvas & MediaRecorder API support (Chrome, Firefox, Safari, Edge)',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    author: {
+      '@type': 'Person',
+      name: 'Kishara',
+      url: 'https://ko-fi.com/kishara',
+    },
+    featureList: [
+      '100% Client-side video merging with zero server uploads',
+      'No watermark and no signup required',
+      'Aspect ratio presets: 16:9 (YouTube), 9:16 (TikTok & Reels), 1:1 (Instagram), 5:4',
+      'Three crop modes: Fit with border, Zoom & Crop to Fill, Blur Background',
+      'Smooth cinematic Crossfade transition with alpha blending',
+      'Background soundtrack uploader and dual-channel volume mixing',
+      'Instant local export to MP4 and WebM formats',
+    ],
+  },
+
+  // 2. HowTo Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to Merge Videos Online for Free Without Watermark',
+    description: 'Learn how to combine multiple video clips, photos, and music into a single video file directly in your browser with zero server uploads.',
+    totalTime: 'PT2M',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Upload Files',
+        text: 'Click "+ Choose files" or drag and drop your video clips (MP4, WebM, MOV), photos, or audio tracks into the browser dropzone.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Arrange and Trim on Timeline',
+        text: 'Drag and drop video thumbnails on the bottom filmstrip timeline to arrange the sequence. Click "Trim" to set in/out points for any clip.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Select Aspect Ratio and Crop Mode',
+        text: 'Choose your destination format (16:9 for YouTube, 9:16 for TikTok/Reels, 1:1 for Instagram, or 5:4) and select Crop Mode (Fit with border, Fill, or Cinematic Blur Backdrop).',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Enable Transitions and Audio',
+        text: 'Toggle Crossfade smooth transitions and upload an optional background soundtrack, adjusting volume balances.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 5,
+        name: 'Export Video Locally',
+        text: 'Select MP4 or WebM format from the bottom bar and click "Export Video". Your video renders 100% locally in browser memory for instant download.',
+      },
+    ],
+  },
+
+  // 3. FAQPage Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Is Merge Videos really free with no watermark?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! Merge Videos is 100% free with no watermark, no account registration, and no video length limits beyond your device hardware capability.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Are my videos uploaded to any external server?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'No. All processing, frame decoding, transition blending, audio mixing, and export encoding occur 100% locally in your web browser memory using HTML5 Canvas and MediaRecorder APIs. Your files never leave your device.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What file formats can I merge?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'You can combine MP4, WebM, MOV video clips, JPG, PNG, and WebP images, and layer MP3, WAV, or AAC audio tracks.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Can I combine videos with different aspect ratios or orientations?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes. Merge Videos includes built-in normalization presets for 16:9, 9:16, 1:1, and 5:4, with intelligent crop options including Fit with border, Zoom & Crop to Fill, and cinematic Blurred Backdrop.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How do I support the developer?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'You can support the development and maintenance of this free open-source tool via Ko-fi at https://ko-fi.com/kishara.',
+        },
+      },
+    ],
+  },
+];
+---
+
+{structuredData.map((schema) => (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

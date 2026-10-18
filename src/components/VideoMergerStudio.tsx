@@ -5,6 +5,7 @@ import { InspectorSidebar } from './studio/InspectorSidebar';
 import { FilmstripTimeline } from './studio/FilmstripTimeline';
 import { ExportBar } from './studio/ExportBar';
 import { TrimModal } from './studio/TrimModal';
+import { ExportModal } from './studio/ExportModal';
 import {
   type ClipItem,
   type AudioItem,
@@ -14,26 +15,19 @@ import {
   processImageFile,
   processAudioFile,
 } from '../utils/mediaUtils';
+import {
+  VideoCompositor,
+  type CompositorProgress,
+  type CompositorResult,
+} from '../utils/VideoCompositor';
 import { type LanguageCode } from '../i18n/translations';
 
 interface VideoMergerStudioProps {
   currentLang: LanguageCode;
-  onExportRequested?: (config: {
-    clips: ClipItem[];
-    audioTrack: AudioItem | null;
-    aspectRatio: AspectRatioType;
-    cropMode: CropModeType;
-    crossfade: boolean;
-    crossfadeDuration: number;
-    format: 'mp4' | 'webm';
-    videoVolume: number;
-    soundtrackVolume: number;
-  }) => void;
 }
 
 export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
   currentLang,
-  onExportRequested,
 }) => {
   // Stage management: 'landing' -> 'studio'
   const [stage, setStage] = useState<'landing' | 'studio'>('landing');
@@ -53,6 +47,13 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
   // Active clip and modals
   const [activeClipIndex, setActiveClipIndex] = useState<number>(0);
   const [editingClip, setEditingClip] = useState<ClipItem | null>(null);
+
+  // Export pipeline state
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportProgress, setExportProgress] = useState<CompositorProgress | null>(null);
+  const [exportResult, setExportResult] = useState<CompositorResult | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const activeCompositorRef = useRef<VideoCompositor | null>(null);
 
   // Hidden file input for adding more files in Studio mode
   const addFilesInputRef = useRef<HTMLInputElement>(null);
@@ -181,38 +182,67 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
     }
   };
 
-  // Trigger export
-  const handleExport = () => {
-    if (onExportRequested) {
-      onExportRequested({
-        clips,
-        audioTrack,
-        aspectRatio,
-        cropMode,
-        crossfade,
-        crossfadeDuration,
-        format: exportFormat,
-        videoVolume: masterVideoVolume,
-        soundtrackVolume,
-      });
-    } else {
-      // Phase 3 will plug in the video compositor engine here
-      window.dispatchEvent(
-        new CustomEvent('video-merger:start-export', {
-          detail: {
-            clips,
-            audioTrack,
-            aspectRatio,
-            cropMode,
-            crossfade,
-            crossfadeDuration,
-            format: exportFormat,
-            videoVolume: masterVideoVolume,
-            soundtrackVolume,
-          },
-        })
-      );
+  // Trigger local client-side export
+  const handleExport = async () => {
+    if (clips.length === 0) return;
+
+    setIsExporting(true);
+    setExportProgress({
+      percent: 0,
+      currentTime: 0,
+      totalTime: totalDuration,
+      stage: 'preparing',
+      message: 'Initializing local browser compositor...',
+    });
+    setExportResult(null);
+    setExportError(null);
+
+    const compositor = new VideoCompositor({
+      clips,
+      audioTrack,
+      aspectRatio,
+      cropMode,
+      crossfade,
+      crossfadeDuration,
+      format: exportFormat,
+      videoVolume: masterVideoVolume,
+      soundtrackVolume,
+      onProgress: (p) => setExportProgress(p),
+    });
+
+    activeCompositorRef.current = compositor;
+
+    try {
+      const result = await compositor.render();
+      setExportResult(result);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Unknown rendering error occurred';
+      if (errorMessage !== 'Export cancelled by user') {
+        setExportError(errorMessage);
+      }
+    } finally {
+      setIsExporting(false);
+      activeCompositorRef.current = null;
     }
+  };
+
+  const handleCancelExport = () => {
+    if (activeCompositorRef.current) {
+      activeCompositorRef.current.cancel();
+      activeCompositorRef.current = null;
+    }
+    setIsExporting(false);
+    setExportProgress(null);
+    setExportResult(null);
+    setExportError(null);
+  };
+
+  const handleCloseExportModal = () => {
+    setExportProgress(null);
+    setExportResult(null);
+    setExportError(null);
+    setIsExporting(false);
   };
 
   // Reset project
@@ -224,6 +254,8 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
       setActiveClipIndex(0);
     }
   };
+
+  const showExportModal = isExporting || exportResult !== null || exportError !== null;
 
   return (
     <div className="w-full flex-1 flex flex-col justify-between">
@@ -313,6 +345,7 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
           onChangeExportFormat={setExportFormat}
           onExportClick={handleExport}
           onNewProject={handleNewProject}
+          isExporting={isExporting}
         />
       )}
 
@@ -323,6 +356,18 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
           currentLang={currentLang}
           onSave={handleSaveTrim}
           onClose={() => setEditingClip(null)}
+        />
+      )}
+
+      {/* Live Export Progress & Download Modal */}
+      {showExportModal && (
+        <ExportModal
+          currentLang={currentLang}
+          progress={exportProgress}
+          result={exportResult}
+          error={exportError}
+          onCancel={handleCancelExport}
+          onClose={handleCloseExportModal}
         />
       )}
     </div>

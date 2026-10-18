@@ -1,5 +1,6 @@
 ---
 import Navbar from '../components/Navbar.astro';
+import StructuredData from '../components/StructuredData.astro';
 import { type LanguageCode, SUPPORTED_LANGUAGES, getTranslations } from '../i18n/translations';
 import '../styles/global.css';
 
@@ -55,6 +56,9 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://video-me
     <meta property="twitter:url" content={canonicalUrl} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+
+    <!-- Rich Structured Data (JSON-LD) -->
+    <StructuredData currentLang={currentLang} />
 
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
