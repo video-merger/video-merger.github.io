@@ -1,0 +1,12 @@
+---
+import { Navbar as ReactNavbar } from './Navbar';
+import type { LanguageCode } from '../i18n/translations';
+
+interface Props {
+  currentLang?: LanguageCode;
+}
+
+const { currentLang = 'en' } = Astro.props;
+---
+
+<ReactNavbar client:load currentLang={currentLang} />

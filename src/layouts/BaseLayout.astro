@@ -1,0 +1,111 @@
+---
+import Navbar from '../components/Navbar.astro';
+import { type LanguageCode, SUPPORTED_LANGUAGES, getTranslations } from '../i18n/translations';
+import '../styles/global.css';
+
+interface Props {
+  currentLang?: LanguageCode;
+  customTitle?: string;
+  customDescription?: string;
+}
+
+const { currentLang = 'en', customTitle, customDescription } = Astro.props;
+const t = getTranslations(currentLang);
+
+const title = customTitle || t.seo.metaTitle;
+const description = customDescription || t.seo.metaDescription;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://video-merger.github.io').href;
+---
+
+<!doctype html>
+<html lang={currentLang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236A795D'><path d='M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z'/></svg>" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={t.seo.keywords} />
+    <meta name="author" content="video-merger.github.io" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Hreflang Alternates -->
+    {SUPPORTED_LANGUAGES.map((lang) => (
+      <link
+        rel="alternate"
+        hreflang={lang.code}
+        href={`https://video-merger.github.io${lang.path}`}
+      />
+    ))}
+    <link rel="alternate" hreflang="x-default" href="https://video-merger.github.io/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Merge Videos" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme Initialization Script (Zero FOUC) -->
+    <script is:inline>
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme');
+          const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-sand-50 dark:bg-studio-DEFAULT text-moss-800 dark:text-sand-100 flex flex-col min-h-screen selection:bg-sage-400 selection:text-studio-DEFAULT transition-colors duration-200">
+    <Navbar currentLang={currentLang} />
+    
+    <main class="flex-1 flex flex-col">
+      <slot />
+    </main>
+
+    <footer class="border-t border-sand-200/60 dark:border-studio-border bg-sand-100/40 dark:bg-studio-surface/50 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-olive-500 dark:text-sage-400">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-moss-700 dark:text-sand-300">video-merger.github.io</span>
+          <span>•</span>
+          <span>{t.nav.privacyBadge}</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <a
+            href="https://ko-fi.com/kishara"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-moss-700 dark:hover:text-sand-300 underline underline-offset-4 transition-colors"
+          >
+            {t.nav.supportDeveloper}
+          </a>
+          <span>•</span>
+          <span>Free & Open Source</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
