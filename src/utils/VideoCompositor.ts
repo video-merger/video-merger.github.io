@@ -44,7 +44,8 @@ export interface CompositorResult {
  */
 function seekVideo(video: HTMLVideoElement, time: number): Promise<void> {
   return new Promise((resolve) => {
-    if (Math.abs(video.currentTime - time) < 0.03 && video.readyState >= 2) {
+    // If already at target time within 15ms and ready, resolve immediately
+    if (Math.abs(video.currentTime - time) < 0.015 && video.readyState >= 2) {
       resolve();
       return;
     }
@@ -61,11 +62,16 @@ function seekVideo(video: HTMLVideoElement, time: number): Promise<void> {
 
     const onSeeked = () => cleanup();
     const onError = () => cleanup();
-    const timer = setTimeout(cleanup, 200); // 200ms fallback
+    const timer = setTimeout(cleanup, 120); // 120ms safety limit per seek
 
     video.addEventListener('seeked', onSeeked, { once: true });
     video.addEventListener('error', onError, { once: true });
-    video.currentTime = Math.max(0, Math.min(video.duration || 1000, time));
+
+    try {
+      video.currentTime = Math.max(0, Math.min(video.duration || 1000, time));
+    } catch {
+      cleanup();
+    }
   });
 }
 
@@ -350,7 +356,7 @@ export class VideoCompositor {
       bitrate: videoBitrate,
       framerate: fps,
       bitrateMode: 'variable',
-      latencyMode: 'quality',
+      latencyMode: 'realtime',
     };
 
     videoEncoder.configure(encoderConfig);
@@ -513,6 +519,11 @@ export class VideoCompositor {
       videoEncoder.encode(vFrame, { keyFrame: isKeyFrame });
       vFrame.close();
 
+      // Backpressure: prevent hardware encoder queue overflow / GPU throttling
+      while (videoEncoder.encodeQueueSize > 5) {
+        await new Promise((resolve) => setTimeout(resolve, 8));
+      }
+
       const percent = Math.min(97, Math.round((frameIndex / totalFrames) * 88) + 10);
       onProgress?.({
         percent,
@@ -522,8 +533,8 @@ export class VideoCompositor {
         message: `Encoding frame ${frameIndex + 1} of ${totalFrames} (${percent}%)...`,
       });
 
-      // Periodic yield to keep UI responsive
-      if (frameIndex % 5 === 0) {
+      // Yield event loop every 2 frames for smooth browser animation and UI responsiveness
+      if (frameIndex % 2 === 0) {
         await new Promise((resolve) => setTimeout(resolve, 0));
       }
     }
