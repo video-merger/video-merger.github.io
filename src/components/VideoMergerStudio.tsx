@@ -43,6 +43,7 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
   const [masterVideoVolume, setMasterVideoVolume] = useState<number>(1.0);
   const [soundtrackVolume, setSoundtrackVolume] = useState<number>(0.8);
   const [exportFormat, setExportFormat] = useState<'mp4' | 'webm'>('mp4');
+  const [exportQuality, setExportQuality] = useState<'ultra' | 'high' | 'standard'>('ultra');
 
   // Active clip and modals
   const [activeClipIndex, setActiveClipIndex] = useState<number>(0);
@@ -205,6 +206,7 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
       crossfade,
       crossfadeDuration,
       format: exportFormat,
+      quality: exportQuality,
       videoVolume: masterVideoVolume,
       soundtrackVolume,
       onProgress: (p) => setExportProgress(p),
@@ -346,6 +348,8 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
           aspectRatio={aspectRatio}
           exportFormat={exportFormat}
           onChangeExportFormat={setExportFormat}
+          exportQuality={exportQuality}
+          onChangeExportQuality={setExportQuality}
           onExportClick={handleExport}
           onNewProject={handleNewProject}
           isExporting={isExporting}

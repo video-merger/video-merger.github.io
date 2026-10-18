@@ -13,6 +13,8 @@ interface ExportBarProps {
   aspectRatio: AspectRatioType;
   exportFormat: 'mp4' | 'webm';
   onChangeExportFormat: (format: 'mp4' | 'webm') => void;
+  exportQuality: 'ultra' | 'high' | 'standard';
+  onChangeExportQuality: (quality: 'ultra' | 'high' | 'standard') => void;
   onExportClick: () => void;
   onNewProject: () => void;
   isExporting?: boolean;
@@ -24,6 +26,8 @@ export const ExportBar: React.FC<ExportBarProps> = ({
   aspectRatio,
   exportFormat,
   onChangeExportFormat,
+  exportQuality,
+  onChangeExportQuality,
   onExportClick,
   onNewProject,
   isExporting = false,
@@ -83,6 +87,25 @@ export const ExportBar: React.FC<ExportBarProps> = ({
             >
               <option value="mp4">MP4 (H.264)</option>
               <option value="webm">WebM (VP9)</option>
+            </select>
+          </div>
+
+          {/* Quality Preset Selector */}
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="hidden md:inline text-olive-500 dark:text-sage-400">
+              Quality:
+            </span>
+            <select
+              value={exportQuality}
+              onChange={(e) =>
+                onChangeExportQuality(e.target.value as 'ultra' | 'high' | 'standard')
+              }
+              className="px-2.5 py-1.5 rounded-lg border border-sand-200 dark:border-studio-border bg-sand-50 dark:bg-studio-card text-moss-800 dark:text-sand-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage-400"
+              title="Export Bitrate & Fidelity"
+            >
+              <option value="ultra">Ultra (Original / 22 Mbps)</option>
+              <option value="high">High (14 Mbps)</option>
+              <option value="standard">Standard (8 Mbps)</option>
             </select>
           </div>
 

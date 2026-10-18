@@ -25,6 +25,7 @@ export interface CompositorConfig {
   crossfade: boolean;
   crossfadeDuration: number;
   format: 'mp4' | 'webm';
+  quality?: 'ultra' | 'high' | 'standard';
   videoVolume: number;
   soundtrackVolume: number;
   onProgress?: (progress: CompositorProgress) => void;
@@ -264,9 +265,38 @@ export class VideoCompositor {
     }
 
     // 4. Check Codec Support and Initialize Muxer
+    const quality = this.config.quality || 'ultra';
+    let videoBitrate = 22_000_000; // Ultra / Original (22 Mbps VBR)
+    let audioBitrate = 256_000;    // Studio quality 256 kbps AAC
+    if (quality === 'high') {
+      videoBitrate = 14_000_000;
+      audioBitrate = 192_000;
+    } else if (quality === 'standard') {
+      videoBitrate = 8_000_000;
+      audioBitrate = 128_000;
+    }
+
     const isMp4 = format === 'mp4';
     const chosenVideoCodec = isMp4 ? 'avc' : 'V_VP9';
-    const videoEncoderCodec = isMp4 ? 'avc1.4d002a' : 'vp09.00.10.08';
+
+    // Test for H.264 High Profile (avc1.64002a) first for maximum visual fidelity, fallback to Main (avc1.4d002a)
+    let videoEncoderCodec = isMp4 ? 'avc1.4d002a' : 'vp09.00.10.08';
+    if (isMp4) {
+      try {
+        const highProfileSupport = await VideoEncoder.isConfigSupported({
+          codec: 'avc1.64002a',
+          width,
+          height,
+          bitrate: videoBitrate,
+          framerate: fps,
+        });
+        if (highProfileSupport.supported) {
+          videoEncoderCodec = 'avc1.64002a';
+        }
+      } catch {
+        videoEncoderCodec = 'avc1.4d002a';
+      }
+    }
 
     const target = isMp4 ? new Mp4ArrayBufferTarget() : new WebmArrayBufferTarget();
 
@@ -307,19 +337,23 @@ export class VideoCompositor {
 
     const muxer = isMp4 ? new Mp4Muxer(muxerOptions) : new WebmMuxer(muxerOptions);
 
-    // 5. Initialize VideoEncoder
+    // 5. Initialize VideoEncoder with hardware quality optimizations
     const videoEncoder = new VideoEncoder({
       output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
       error: (e) => console.error('VideoEncoder error:', e),
     });
 
-    videoEncoder.configure({
+    const encoderConfig: any = {
       codec: videoEncoderCodec,
       width,
       height,
-      bitrate: 8_000_000,
+      bitrate: videoBitrate,
       framerate: fps,
-    });
+      bitrateMode: 'variable',
+      latencyMode: 'quality',
+    };
+
+    videoEncoder.configure(encoderConfig);
 
     // 6. Encode Audio (if available)
     if (renderedAudio && canEncodeAudio) {
@@ -328,7 +362,7 @@ export class VideoCompositor {
         currentTime: 0,
         totalTime: totalDuration,
         stage: 'encoding',
-        message: 'Encoding audio tracks...',
+        message: 'Encoding studio-quality audio...',
       });
 
       const audioEncoder = new AudioEncoder({
@@ -340,7 +374,7 @@ export class VideoCompositor {
         codec: audioCodecString,
         numberOfChannels: 2,
         sampleRate,
-        bitrate: 192_000,
+        bitrate: audioBitrate,
       });
 
       const chunkSize = 2048;
