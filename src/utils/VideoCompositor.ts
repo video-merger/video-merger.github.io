@@ -417,126 +417,195 @@ export class VideoCompositor {
       audioEncoder.close();
     }
 
-    // 7. Render Video Frames deterministically
+    // 7. Render Video Frames with Forward Hardware Playback (Zero-Seek Architecture)
+    const offscreenContainer = document.createElement('div');
+    offscreenContainer.style.cssText =
+      'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1000;';
+    document.body.appendChild(offscreenContainer);
+
+    for (const v of videoElements.values()) {
+      offscreenContainer.appendChild(v);
+    }
+
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) throw new Error('Canvas 2D context unavailable');
+    if (!ctx) {
+      offscreenContainer.remove();
+      throw new Error('Canvas 2D context unavailable');
+    }
 
     const totalFrames = Math.max(1, Math.ceil(totalDuration * fps));
+    const frameIntervalMs = 1000 / fps;
+    const startTime = performance.now();
 
-    for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-      if (this.isCancelled) {
-        videoEncoder.close();
-        throw new Error('Export cancelled by user');
-      }
+    let currentPlayingClipId: string | null = null;
+    let nextPlayingClipId: string | null = null;
 
-      const time = frameIndex / fps;
-
-      // Draw background
-      ctx.fillStyle = '#121412';
-      ctx.fillRect(0, 0, width, height);
-
-      // Locate primary clip
-      let primaryIndex = 0;
-      for (let i = 0; i < clipRanges.length; i++) {
-        if (time >= clipRanges[i].start && time < clipRanges[i].end) {
-          primaryIndex = i;
-          break;
+    try {
+      for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
+        if (this.isCancelled) {
+          videoEncoder.close();
+          throw new Error('Export cancelled by user');
         }
-        if (i === clipRanges.length - 1) primaryIndex = i;
-      }
 
-      const primaryRange = clipRanges[primaryIndex];
-      const primaryClip = primaryRange.clip;
-      const primaryLocalTime = Math.max(
-        0,
-        Math.min(primaryClip.duration, time - primaryRange.start + primaryClip.trimStart)
-      );
+        const time = frameIndex / fps;
 
-      // Crossfade transition check
-      const nextRange = clipRanges[primaryIndex + 1];
-      const isInTransition =
-        crossfade &&
-        nextRange &&
-        time >= primaryRange.end - effectiveTransition &&
-        time < primaryRange.end;
+        // Draw background
+        ctx.fillStyle = '#121412';
+        ctx.fillRect(0, 0, width, height);
 
-      if (isInTransition && nextRange) {
-        const progress =
-          (time - (primaryRange.end - effectiveTransition)) / effectiveTransition;
-
-        const primaryEl =
-          primaryClip.type === 'video'
-            ? videoElements.get(primaryClip.id)
-            : imageElements.get(primaryClip.id);
-        if (primaryEl) {
-          if (primaryEl instanceof HTMLVideoElement) {
-            await seekVideo(primaryEl, primaryLocalTime);
+        // Locate primary clip
+        let primaryIndex = 0;
+        for (let i = 0; i < clipRanges.length; i++) {
+          if (time >= clipRanges[i].start && time < clipRanges[i].end) {
+            primaryIndex = i;
+            break;
           }
-          drawElementWithCropMode(ctx, primaryEl, width, height, cropMode, 1.0 - progress);
+          if (i === clipRanges.length - 1) primaryIndex = i;
         }
 
-        const nextClip = nextRange.clip;
-        const nextLocalTime = Math.max(
+        const primaryRange = clipRanges[primaryIndex];
+        const primaryClip = primaryRange.clip;
+        const primaryLocalTime = Math.max(
           0,
-          Math.min(nextClip.duration, time - nextRange.start + nextClip.trimStart)
+          Math.min(primaryClip.duration, time - primaryRange.start + primaryClip.trimStart)
         );
-        const nextEl =
-          nextClip.type === 'video'
-            ? videoElements.get(nextClip.id)
-            : imageElements.get(nextClip.id);
-        if (nextEl) {
-          if (nextEl instanceof HTMLVideoElement) {
-            await seekVideo(nextEl, nextLocalTime);
+
+        // Drive primary video playback forward continuously without random seeks
+        if (primaryClip.type === 'video') {
+          const v = videoElements.get(primaryClip.id);
+          if (v) {
+            if (currentPlayingClipId !== primaryClip.id) {
+              if (currentPlayingClipId) {
+                const oldV = videoElements.get(currentPlayingClipId);
+                oldV?.pause();
+              }
+              v.currentTime = primaryLocalTime;
+              try {
+                await v.play();
+              } catch {}
+              currentPlayingClipId = primaryClip.id;
+            } else if (v.paused) {
+              try {
+                await v.play();
+              } catch {}
+            } else if (Math.abs(v.currentTime - primaryLocalTime) > 0.4) {
+              v.currentTime = primaryLocalTime;
+            }
           }
-          drawElementWithCropMode(ctx, nextEl, width, height, cropMode, progress);
         }
-      } else {
-        // Single clip frame
-        const el =
-          primaryClip.type === 'video'
-            ? videoElements.get(primaryClip.id)
-            : imageElements.get(primaryClip.id);
-        if (el) {
-          if (el instanceof HTMLVideoElement) {
-            await seekVideo(el, primaryLocalTime);
+
+        // Crossfade transition check
+        const nextRange = clipRanges[primaryIndex + 1];
+        const isInTransition =
+          crossfade &&
+          nextRange &&
+          time >= primaryRange.end - effectiveTransition &&
+          time < primaryRange.end;
+
+        if (isInTransition && nextRange) {
+          const progress =
+            (time - (primaryRange.end - effectiveTransition)) / effectiveTransition;
+
+          const nextClip = nextRange.clip;
+          const nextLocalTime = Math.max(
+            0,
+            Math.min(nextClip.duration, time - nextRange.start + nextClip.trimStart)
+          );
+
+          if (nextClip.type === 'video') {
+            const nextV = videoElements.get(nextClip.id);
+            if (nextV) {
+              if (nextPlayingClipId !== nextClip.id) {
+                nextV.currentTime = nextLocalTime;
+                try {
+                  await nextV.play();
+                } catch {}
+                nextPlayingClipId = nextClip.id;
+              } else if (nextV.paused) {
+                try {
+                  await nextV.play();
+                } catch {}
+              } else if (Math.abs(nextV.currentTime - nextLocalTime) > 0.4) {
+                nextV.currentTime = nextLocalTime;
+              }
+            }
           }
-          drawElementWithCropMode(ctx, el, width, height, cropMode, 1.0);
+
+          const primaryEl =
+            primaryClip.type === 'video'
+              ? videoElements.get(primaryClip.id)
+              : imageElements.get(primaryClip.id);
+          if (primaryEl) {
+            drawElementWithCropMode(ctx, primaryEl, width, height, cropMode, 1.0 - progress);
+          }
+
+          const nextEl =
+            nextClip.type === 'video'
+              ? videoElements.get(nextClip.id)
+              : imageElements.get(nextClip.id);
+          if (nextEl) {
+            drawElementWithCropMode(ctx, nextEl, width, height, cropMode, progress);
+          }
+        } else {
+          if (nextPlayingClipId) {
+            const oldNextV = videoElements.get(nextPlayingClipId);
+            oldNextV?.pause();
+            nextPlayingClipId = null;
+          }
+
+          const el =
+            primaryClip.type === 'video'
+              ? videoElements.get(primaryClip.id)
+              : imageElements.get(primaryClip.id);
+          if (el) {
+            drawElementWithCropMode(ctx, el, width, height, cropMode, 1.0);
+          }
+        }
+
+        // Encode VideoFrame with precise microsecond timestamp
+        const timestampUs = Math.round((frameIndex / fps) * 1_000_000);
+        const durationUs = Math.round((1 / fps) * 1_000_000);
+        const vFrame = new VideoFrame(canvas, {
+          timestamp: timestampUs,
+          duration: durationUs,
+        });
+
+        const isKeyFrame = frameIndex % (fps * 2) === 0;
+        videoEncoder.encode(vFrame, { keyFrame: isKeyFrame });
+        vFrame.close();
+
+        // Backpressure check: prevent GPU encoder queue overflow
+        while (videoEncoder.encodeQueueSize > 5) {
+          await new Promise((resolve) => setTimeout(resolve, 8));
+        }
+
+        const percent = Math.min(97, Math.round((frameIndex / totalFrames) * 88) + 10);
+        onProgress?.({
+          percent,
+          currentTime: time,
+          totalTime: totalDuration,
+          stage: 'rendering',
+          message: `Compositing frame ${frameIndex + 1} of ${totalFrames} (${percent}%)...`,
+        });
+
+        // Pace clock to match video frame rate
+        const expectedTimeMs = (frameIndex + 1) * frameIntervalMs;
+        const actualTimeMs = performance.now() - startTime;
+        const waitMs = expectedTimeMs - actualTimeMs;
+        if (waitMs > 1) {
+          await new Promise((resolve) => setTimeout(resolve, Math.min(waitMs, 33)));
+        } else if (frameIndex % 3 === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       }
-
-      // Encode VideoFrame with precise microsecond timestamp
-      const timestampUs = Math.round((frameIndex / fps) * 1_000_000);
-      const durationUs = Math.round((1 / fps) * 1_000_000);
-      const vFrame = new VideoFrame(canvas, {
-        timestamp: timestampUs,
-        duration: durationUs,
-      });
-
-      const isKeyFrame = frameIndex % (fps * 2) === 0;
-      videoEncoder.encode(vFrame, { keyFrame: isKeyFrame });
-      vFrame.close();
-
-      // Backpressure: prevent hardware encoder queue overflow / GPU throttling
-      while (videoEncoder.encodeQueueSize > 5) {
-        await new Promise((resolve) => setTimeout(resolve, 8));
+    } finally {
+      for (const v of videoElements.values()) {
+        v.pause();
       }
-
-      const percent = Math.min(97, Math.round((frameIndex / totalFrames) * 88) + 10);
-      onProgress?.({
-        percent,
-        currentTime: time,
-        totalTime: totalDuration,
-        stage: 'rendering',
-        message: `Encoding frame ${frameIndex + 1} of ${totalFrames} (${percent}%)...`,
-      });
-
-      // Yield event loop every 2 frames for smooth browser animation and UI responsiveness
-      if (frameIndex % 2 === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      }
+      offscreenContainer.remove();
     }
 
     onProgress?.({
