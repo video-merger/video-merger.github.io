@@ -377,7 +377,7 @@ export const CanvasPlayer: React.FC<CanvasPlayerProps> = ({
         className="relative w-full max-w-4xl mx-auto flex items-center justify-center p-2 sm:p-4 bg-black/40 dark:bg-black/60 rounded-2xl border border-sand-200/50 dark:border-studio-border overflow-hidden shadow-luxury-light dark:shadow-luxury-dark backdrop-blur-md"
       >
         <div
-          className={`relative w-full ${getAspectClass()} max-w-full rounded-xl overflow-hidden shadow-2xl flex items-center justify-center bg-studio-DEFAULT`}
+          className={`relative w-full ${getAspectClass()} max-w-full rounded-xl overflow-hidden shadow-2xl flex items-center justify-center bg-studio`}
         >
           <canvas
             ref={canvasRef}
@@ -391,7 +391,7 @@ export const CanvasPlayer: React.FC<CanvasPlayerProps> = ({
             className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity focus:outline-none"
             aria-label={isPlaying ? t.studio.pause : t.studio.play}
           >
-            <div className="w-16 h-16 rounded-full bg-sand-300/90 dark:bg-sand-300 text-studio-DEFAULT flex items-center justify-center shadow-lg transform active:scale-90 transition-transform">
+            <div className="w-16 h-16 rounded-full bg-sand-300/90 dark:bg-sand-300 text-studio flex items-center justify-center shadow-lg transform active:scale-90 transition-transform">
               {isPlaying ? (
                 <Pause className="w-7 h-7 fill-current" />
               ) : (

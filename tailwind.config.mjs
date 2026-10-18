@@ -47,6 +47,7 @@ export default {
         },
         studio: {
           DEFAULT: '#121412', // dark_studio_background
+          dark: '#121412',
           surface: '#1A1D1A',
           card: '#222622',
           border: '#2E352E',

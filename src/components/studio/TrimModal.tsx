@@ -112,7 +112,7 @@ export const TrimModal: React.FC<TrimModalProps> = ({
               onClick={togglePlay}
               className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-sand-300 text-studio-DEFAULT flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-full bg-sand-300 text-studio flex items-center justify-center shadow-lg">
                 {isPlaying ? (
                   <Pause className="w-5 h-5 fill-current" />
                 ) : (

@@ -28,6 +28,12 @@
   html {
     scroll-behavior: smooth;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: #FAF9F5;
+  }
+
+  html.dark {
+    background-color: #121412;
+    color-scheme: dark;
   }
 
   body {
@@ -35,6 +41,10 @@
     color: var(--text-primary);
     min-height: 100vh;
     transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  html.dark body {
+    background-color: #121412;
   }
 
   ::selection {

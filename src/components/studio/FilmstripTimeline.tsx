@@ -114,7 +114,7 @@ export const FilmstripTimeline: React.FC<FilmstripTimelineProps> = ({
               }`}
             >
               {/* Thumbnail Container */}
-              <div className="relative aspect-video w-full bg-studio-DEFAULT overflow-hidden">
+              <div className="relative aspect-video w-full bg-studio overflow-hidden">
                 <img
                   src={clip.thumbnailUrl}
                   alt={clip.name}
