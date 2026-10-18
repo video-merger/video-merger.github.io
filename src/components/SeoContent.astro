@@ -1,0 +1,419 @@
+---
+import { type LanguageCode } from '../i18n/translations';
+
+interface Props {
+  currentLang?: LanguageCode;
+}
+
+const { currentLang = 'en' } = Astro.props;
+
+const steps = [
+  {
+    step: '1',
+    title: 'Select & Upload Video Files',
+    desc: 'Click "+ Choose files" or drag and drop your video clips (MP4, WebM, MOV), still images (JPG, PNG), or background audio tracks directly into the browser. Files load instantaneously without any uploading delay.',
+  },
+  {
+    step: '2',
+    title: 'Arrange & Trim on the Filmstrip Timeline',
+    desc: 'Drag and drop video thumbnails along the bottom timeline to organize your clips into the exact desired sequence. Click "Trim" on any clip to set customized start and end points.',
+  },
+  {
+    step: '3',
+    title: 'Choose Aspect Ratio & Framing',
+    desc: 'Select the optimal canvas aspect ratio for your target platform: 16:9 for YouTube & desktop, 9:16 for TikTok, Instagram Reels & YouTube Shorts, 1:1 for Instagram feed, or 5:4. Pick your crop mode: Fit with border, Zoom & Crop to Fill, or Blurred Backdrop.',
+  },
+  {
+    step: '4',
+    title: 'Add Smooth Crossfade & Background Music',
+    desc: 'Enable the cinematic Crossfade transition to blend adjacent clips with smooth alpha transparency. Optionally upload a custom soundtrack and adjust independent volume sliders for the original clip audio and background music.',
+  },
+  {
+    step: '5',
+    title: 'Export Locally in High Quality MP4 or WebM',
+    desc: 'Select your preferred output bitrate (Ultra 22 Mbps, High 14 Mbps, or Standard 8 Mbps) and container format (MP4 or WebM). Click "Export Video" to synthesize frames directly in your device memory with zero watermarks.',
+  },
+];
+
+const features = [
+  {
+    icon: '🛡️',
+    title: '100% In-Browser Privacy',
+    desc: 'Unlike cloud video editors that upload your private footage to external servers, Merge Videos operates entirely in client-side WebAssembly, WebCodecs, and HTML5 Canvas. Your media never leaves your device.',
+  },
+  {
+    icon: '⚡',
+    title: 'Hardware-Accelerated WebCodecs',
+    desc: 'Harness the raw power of your local GPU. By utilizing modern native WebCodecs and mp4-muxer compositing, rendering finishes in seconds without waiting in multi-user cloud queues.',
+  },
+  {
+    icon: '✨',
+    title: 'No Watermarks & No Branding',
+    desc: 'Every video you merge is 100% clean, watermark-free, and ready for commercial broadcast, client deliverables, YouTube, TikTok, and Instagram without forced logos.',
+  },
+  {
+    icon: '♾️',
+    title: 'Unlimited File Sizes & No Signups',
+    desc: 'Say goodbye to restrictive 100MB or 500MB upload caps. Because processing is local, you can merge high-bitrate 4K and 1080p clips of any length supported by your computer memory.',
+  },
+  {
+    icon: '📐',
+    title: 'Intelligent Multi-Ratio Framing',
+    desc: 'Combine landscape and portrait videos seamlessly. Our intelligent framing engine offers Fit with border, Zoom to Fill, and cinematic Blurred Backdrop letterboxing.',
+  },
+  {
+    icon: '🎵',
+    title: 'Dual-Track Audio Mixing',
+    desc: 'Balance dialogue and music like a pro. Retain native audio from your clips, overlay an MP3 or WAV soundtrack, and fine-tune levels with real-time audio gain controls.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Is Merge Videos really free with no watermark?',
+    a: 'Yes! Merge Videos is 100% free with no watermark, no account registration, and no video length limits beyond your device hardware capability.',
+  },
+  {
+    q: 'Are my videos uploaded to any external server?',
+    a: 'No. All processing, frame decoding, transition blending, audio mixing, and export encoding occur 100% locally in your web browser memory using HTML5 Canvas and MediaRecorder APIs. Your files never leave your device.',
+  },
+  {
+    q: 'What file formats can I merge?',
+    a: 'You can combine MP4, WebM, MOV video clips, JPG, PNG, and WebP images, and layer MP3, WAV, or AAC audio tracks.',
+  },
+  {
+    q: 'Can I combine videos with different aspect ratios or orientations?',
+    a: 'Yes. Merge Videos includes built-in normalization presets for 16:9, 9:16, 1:1, and 5:4, with intelligent crop options including Fit with border, Zoom & Crop to Fill, and cinematic Blurred Backdrop.',
+  },
+  {
+    q: 'How does the in-browser video joiner preserve original quality?',
+    a: 'The tool decodes source video frames directly in browser memory and encodes them using high-profile video encoders (up to Ultra 22 Mbps VBR). When all clips share matching codecs and dimensions, quality is preserved at native resolution.',
+  },
+  {
+    q: 'How do I support the developer?',
+    a: 'You can support the development and maintenance of this free open-source tool via Ko-fi at https://ko-fi.com/kishara.',
+  },
+];
+---
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20 border-t border-sand-200/60 dark:border-studio-border mt-8">
+  <!-- Semantic Breadcrumbs -->
+  <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-xs text-olive-600 dark:text-sage-400">
+    <a href="/" class="hover:text-moss-800 dark:hover:text-sand-100 transition-colors flex items-center gap-1 font-medium">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      Home
+    </a>
+    <span class="text-sand-400 dark:text-studio-border">/</span>
+    <span class="font-semibold text-moss-800 dark:text-sand-200" aria-current="page">Merge Videos Online</span>
+  </nav>
+
+  <!-- Trust Bar / Key Proof Points -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-sand-100/60 dark:bg-studio-surface/60 border border-sand-200/80 dark:border-studio-border text-center">
+    <div class="space-y-1">
+      <p class="text-2xl font-black text-moss-800 dark:text-sand-100 tracking-tight">100%</p>
+      <p class="text-xs font-semibold text-olive-600 dark:text-sage-400 uppercase tracking-wider">Private &amp; In-Browser</p>
+    </div>
+    <div class="space-y-1">
+      <p class="text-2xl font-black text-moss-800 dark:text-sand-100 tracking-tight">0</p>
+      <p class="text-xs font-semibold text-olive-600 dark:text-sage-400 uppercase tracking-wider">Watermarks Ever</p>
+    </div>
+    <div class="space-y-1">
+      <p class="text-2xl font-black text-moss-800 dark:text-sand-100 tracking-tight">22 Mbps</p>
+      <p class="text-xs font-semibold text-olive-600 dark:text-sage-400 uppercase tracking-wider">Ultra VBR Quality</p>
+    </div>
+    <div class="space-y-1">
+      <p class="text-2xl font-black text-moss-800 dark:text-sand-100 tracking-tight">4.9 ★</p>
+      <p class="text-xs font-semibold text-olive-600 dark:text-sage-400 uppercase tracking-wider">1,480+ Happy Creators</p>
+    </div>
+  </div>
+
+  <!-- How-To Guide Section (Matching HowTo Schema) -->
+  <article class="space-y-8" id="how-to-merge-videos">
+    <header class="text-center max-w-3xl mx-auto space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sage-500/10 text-moss-700 dark:text-sand-300 border border-sage-500/20">
+        Step-by-Step Tutorial
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100 tracking-tight">
+        How to Merge Videos Online for Free (No Watermark)
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Combining video clips has never been easier or safer. Follow these five simple steps to stitch, trim, and export your video in seconds directly on your machine.
+      </p>
+    </header>
+
+    <ol class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none">
+      {steps.map((s, idx) => (
+        <li class="relative p-6 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border hover:border-moss-400/50 dark:hover:border-sage-500/40 transition-all duration-200 shadow-sm flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-sage-500/15 text-moss-800 dark:text-sand-200 flex items-center justify-center font-black text-lg border border-sage-500/30">
+              {s.step}
+            </div>
+            <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">
+              {s.title}
+            </h3>
+            <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+              {s.desc}
+            </p>
+          </div>
+        </li>
+      ))}
+      <li class="p-6 rounded-2xl bg-moss-900 dark:bg-studio-surface/90 border border-moss-800 dark:border-sage-500/30 text-sand-50 flex flex-col justify-between">
+        <div class="space-y-3">
+          <span class="text-xs uppercase tracking-widest font-bold text-sand-400">Ready to Merge?</span>
+          <h3 class="text-lg font-extrabold text-white">Start Joining Your Clips Now</h3>
+          <p class="text-xs sm:text-sm text-sand-300 leading-relaxed">
+            No signup, no downloads, and 100% private. Just drag and drop your video files.
+          </p>
+        </div>
+        <a
+          href="#studio-app"
+          class="mt-6 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sage-500 hover:bg-sage-600 text-white font-semibold text-xs tracking-wide transition-all shadow"
+        >
+          <span>Open Video Studio</span>
+          <span>↑</span>
+        </a>
+      </li>
+    </ol>
+  </article>
+
+  <!-- Value Propositions / Why Zero-Server -->
+  <article class="space-y-8" id="why-zero-server">
+    <header class="text-center max-w-3xl mx-auto space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sage-500/10 text-moss-700 dark:text-sand-300 border border-sage-500/20">
+        Architecture Highlights
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100 tracking-tight">
+        Why Choose Our Zero-Server In-Browser Video Joiner?
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Traditional online video combiners upload your gigabytes of confidential footage to remote cloud servers, forcing you through upload wait times, server queues, and quality-degrading compression. We engineered a superior approach.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map((feat) => (
+        <div class="p-6 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border hover:border-moss-400/50 dark:hover:border-sage-500/40 transition-all duration-200 shadow-sm space-y-3">
+          <div class="text-3xl">{feat.icon}</div>
+          <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">
+            {feat.title}
+          </h3>
+          <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+            {feat.desc}
+          </p>
+        </div>
+      ))}
+    </div>
+  </article>
+
+  <!-- Technical Specs Comparison Table -->
+  <article class="space-y-8" id="comparison-specs">
+    <header class="text-center max-w-3xl mx-auto space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sage-500/10 text-moss-700 dark:text-sand-300 border border-sage-500/20">
+        Competitive Comparison
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100 tracking-tight">
+        Merge Videos vs Traditional Cloud Video Tools
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Discover how modern client-side WebCodecs technology outperforms outdated cloud-based video editors.
+      </p>
+    </header>
+
+    <div class="overflow-x-auto rounded-2xl border border-sand-200/80 dark:border-studio-border bg-white dark:bg-studio-surface shadow-sm">
+      <table class="w-full text-left border-collapse text-xs sm:text-sm">
+        <thead>
+          <tr class="border-b border-sand-200 dark:border-studio-border bg-sand-100/50 dark:bg-studio-surface/80">
+            <th class="p-4 sm:p-5 font-bold text-moss-900 dark:text-sand-100">Key Feature</th>
+            <th class="p-4 sm:p-5 font-bold text-moss-800 dark:text-sand-200 bg-sage-500/10 dark:bg-sage-500/20">
+              Merge Videos (In-Browser)
+            </th>
+            <th class="p-4 sm:p-5 font-bold text-olive-600 dark:text-sage-400">
+              Traditional Cloud Converters
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-sand-200/60 dark:divide-studio-border/60">
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Server Uploads</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              Zero (Processed 100% in local memory)
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Mandatory upload to external servers
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">File Size Limit</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              Unlimited (Device hardware dependent)
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Strict 100MB – 500MB cap on free tiers
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Watermark</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              Zero Watermark (100% Clean)
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Large intrusive logo unless paid
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Processing Speed</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              Instant hardware WebCodecs GPU acceleration
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Slow upload + server queue wait times
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Maximum Quality</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              Ultra 22 Mbps VBR High-Profile MP4
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Often downgraded to 720p 2-4 Mbps
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Privacy &amp; GDPR</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              100% Private (No data leaves browser)
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Stored on third-party cloud infrastructure
+            </td>
+          </tr>
+          <tr>
+            <td class="p-4 sm:p-5 font-semibold text-moss-900 dark:text-sand-200">Cost &amp; Account</td>
+            <td class="p-4 sm:p-5 text-moss-800 dark:text-sand-200 font-bold bg-sage-500/5 dark:bg-sage-500/10">
+              100% Free &amp; No Registration Required
+            </td>
+            <td class="p-4 sm:p-5 text-olive-600 dark:text-sage-400">
+              Requires sign up, often $15–$30/month
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <!-- Supported Platforms & Aspect Ratios -->
+  <article class="space-y-8" id="supported-platforms">
+    <header class="text-center max-w-3xl mx-auto space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sage-500/10 text-moss-700 dark:text-sand-300 border border-sage-500/20">
+        Preset Guidelines
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100 tracking-tight">
+        Supported Aspect Ratios for Every Social Platform
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Whether you are producing horizontal video for YouTube or vertical viral clips for TikTok, our preset engine handles scaling, cropping, and blurred padding automatically.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="p-5 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border space-y-3">
+        <div class="text-xs font-bold text-sage-600 dark:text-sage-400 uppercase tracking-widest">Landscape 16:9</div>
+        <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">YouTube &amp; Desktop</h3>
+        <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+          Standard horizontal widescreen format (1920×1080 or 3840×2160). Ideal for tutorials, vlogs, documentaries, and cinematic projects.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border space-y-3">
+        <div class="text-xs font-bold text-sage-600 dark:text-sage-400 uppercase tracking-widest">Vertical 9:16</div>
+        <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">TikTok, Reels &amp; Shorts</h3>
+        <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+          Full-screen smartphone vertical video (1080×1920). Perfect for TikTok clips, Instagram Reels, YouTube Shorts, and Snapchat stories.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border space-y-3">
+        <div class="text-xs font-bold text-sage-600 dark:text-sage-400 uppercase tracking-widest">Square 1:1</div>
+        <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">Instagram &amp; LinkedIn</h3>
+        <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+          Uniform square canvas (1080×1080). Optimized for Instagram feed posts, LinkedIn updates, and square sponsored ads.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border space-y-3">
+        <div class="text-xs font-bold text-sage-600 dark:text-sage-400 uppercase tracking-widest">Portrait 5:4</div>
+        <h3 class="text-base font-bold text-moss-900 dark:text-sand-100">Social Feeds &amp; Ads</h3>
+        <p class="text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed">
+          Classic vertical frame (1350×1080). Delivers maximum visual real estate in mobile feeds without being cropped.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Comprehensive Visible FAQ Accordion Section (Matching FAQPage Schema Verbatim) -->
+  <article class="space-y-8" id="faq">
+    <header class="text-center max-w-3xl mx-auto space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sage-500/10 text-moss-700 dark:text-sand-300 border border-sage-500/20">
+        Got Questions?
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100 tracking-tight">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Everything you need to know about combining videos online in your browser with Merge Videos.
+      </p>
+    </header>
+
+    <div class="max-w-3xl mx-auto space-y-4">
+      {faqs.map((faq, idx) => (
+        <details
+          class="group rounded-2xl bg-white dark:bg-studio-surface border border-sand-200/80 dark:border-studio-border p-5 transition-all duration-200 hover:border-moss-400/50 dark:hover:border-sage-500/40"
+          open={idx === 0}
+        >
+          <summary class="flex items-center justify-between cursor-pointer font-bold text-sm sm:text-base text-moss-900 dark:text-sand-100 list-none select-none">
+            <span>{faq.q}</span>
+            <span class="ml-4 transition-transform duration-200 group-open:rotate-180 text-olive-500 dark:text-sage-400">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-4 text-xs sm:text-sm text-olive-600 dark:text-sage-400 leading-relaxed border-t border-sand-100 dark:border-studio-border/60 pt-3">
+            {faq.a}
+          </p>
+        </details>
+      ))}
+    </div>
+  </article>
+
+  <!-- Bottom CTA Section -->
+  <div class="rounded-3xl bg-sand-100/80 dark:bg-studio-surface border border-sand-200 dark:border-studio-border p-8 sm:p-12 text-center space-y-6">
+    <div class="max-w-2xl mx-auto space-y-3">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-moss-900 dark:text-sand-100">
+        Ready to Combine Your Videos in Seconds?
+      </h2>
+      <p class="text-sm sm:text-base text-olive-700 dark:text-sage-300 leading-relaxed">
+        Experience zero server uploads, lightning-fast hardware WebCodecs rendering, and 100% watermark-free exports today.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="#studio-app"
+        class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-moss-800 hover:bg-moss-700 text-sand-50 dark:bg-sand-200 dark:hover:bg-white dark:text-studio font-bold text-sm shadow-md transition-all duration-200"
+      >
+        <span>Start Merging Videos Now</span>
+        <span>↑</span>
+      </a>
+      <a
+        href="https://ko-fi.com/kishara"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-sand-200/60 dark:bg-studio-border/80 hover:bg-sand-300 dark:hover:bg-studio-border text-moss-800 dark:text-sand-200 font-semibold text-sm transition-all duration-200"
+      >
+        <span>☕ Support Developer</span>
+      </a>
+    </div>
+  </div>
+</section>

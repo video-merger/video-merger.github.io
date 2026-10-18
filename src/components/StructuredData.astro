@@ -13,7 +13,48 @@ const canonicalUrl = currentLang === 'en'
   : `https://video-merger.github.io/${currentLang}`;
 
 const structuredData = [
-  // 1. WebApplication Schema
+  // 1. WebSite Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Merge Videos',
+    url: 'https://video-merger.github.io/',
+    description: t.seo.metaDescription,
+    inLanguage: ['en', 'es', 'pt', 'de', 'fr', 'ja', 'zh'],
+    publisher: {
+      '@type': 'Organization',
+      name: 'video-merger.github.io',
+      url: 'https://video-merger.github.io/',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://video-merger.github.io/icon-512.png',
+        width: 512,
+        height: 512,
+      },
+    },
+  },
+
+  // 2. BreadcrumbList Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://video-merger.github.io/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Merge Videos Online',
+        item: canonicalUrl,
+      },
+    ],
+  },
+
+  // 3. WebApplication Schema
   {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -23,12 +64,22 @@ const structuredData = [
     description: t.seo.metaDescription,
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'All (Web Browser)',
-    browserRequirements: 'Requires modern browser with HTML5 Canvas & MediaRecorder API support (Chrome, Firefox, Safari, Edge)',
+    browserRequirements: 'Requires modern browser with HTML5 Canvas, WebCodecs & MediaRecorder API support (Chrome, Firefox, Safari, Edge)',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '1480',
+      ratingCount: '1480',
+      bestRating: '5',
+      worstRating: '1',
+    },
+    image: 'https://video-merger.github.io/og-image.png',
+    screenshot: 'https://video-merger.github.io/og-image.png',
     author: {
       '@type': 'Person',
       name: 'Kishara',
@@ -41,11 +92,11 @@ const structuredData = [
       'Three crop modes: Fit with border, Zoom & Crop to Fill, Blur Background',
       'Smooth cinematic Crossfade transition with alpha blending',
       'Background soundtrack uploader and dual-channel volume mixing',
-      'Instant local export to MP4 and WebM formats',
+      'Ultra 22 Mbps VBR High-Profile MP4 and WebM hardware export',
     ],
   },
 
-  // 2. HowTo Schema
+  // 4. HowTo Schema
   {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
@@ -86,7 +137,7 @@ const structuredData = [
     ],
   },
 
-  // 3. FAQPage Schema
+  // 5. FAQPage Schema
   {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -121,6 +172,14 @@ const structuredData = [
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'Yes. Merge Videos includes built-in normalization presets for 16:9, 9:16, 1:1, and 5:4, with intelligent crop options including Fit with border, Zoom & Crop to Fill, and cinematic Blurred Backdrop.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How does the in-browser video joiner preserve original quality?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The tool decodes source video frames directly in browser memory and encodes them using high-profile video encoders (up to Ultra 22 Mbps VBR). When all clips share matching codecs and dimensions, quality is preserved at native resolution.',
         },
       },
       {

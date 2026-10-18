@@ -23,7 +23,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://video-me
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236A795D'><path d='M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z'/></svg>" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Google tag (gtag.js) -->
@@ -41,8 +41,19 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://video-me
     <meta name="description" content={description} />
     <meta name="keywords" content={t.seo.keywords} />
     <meta name="author" content="video-merger.github.io" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Favicons & Web App Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#121412" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F7F8F5" media="(prefers-color-scheme: light)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Merge Videos" />
 
     <!-- Hreflang Alternates -->
     {SUPPORTED_LANGUAGES.map((lang) => (
@@ -60,12 +71,21 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://video-me
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="Merge Videos" />
+    <meta property="og:locale" content={currentLang === 'en' ? 'en_US' : currentLang} />
+    <meta property="og:image" content="https://video-merger.github.io/og-image.png" />
+    <meta property="og:image:secure_url" content="https://video-merger.github.io/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Merge Videos Online - Free In-Browser Video Joiner Without Watermark" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalUrl} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://video-merger.github.io/og-image.png" />
+    <meta name="twitter:image:alt" content="Merge Videos Online - Free In-Browser Video Joiner Without Watermark" />
 
     <!-- Rich Structured Data (JSON-LD) -->
     <StructuredData currentLang={currentLang} />

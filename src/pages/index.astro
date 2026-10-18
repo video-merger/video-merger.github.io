@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { VideoMergerStudio } from '../components/VideoMergerStudio';
+import SeoContent from '../components/SeoContent.astro';
 import { getTranslations } from '../i18n/translations';
 
 const currentLang = 'en';
@@ -8,5 +9,8 @@ const t = getTranslations(currentLang);
 ---
 
 <BaseLayout currentLang={currentLang}>
-  <VideoMergerStudio client:load currentLang={currentLang} />
+  <div id="studio-app">
+    <VideoMergerStudio client:load currentLang={currentLang} />
+  </div>
+  <SeoContent currentLang={currentLang} />
 </BaseLayout>
