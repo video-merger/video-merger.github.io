@@ -38,7 +38,7 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
   const [audioTrack, setAudioTrack] = useState<AudioItem | null>(null);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>('16:9');
   const [cropMode, setCropMode] = useState<CropModeType>('fit');
-  const [crossfade, setCrossfade] = useState<boolean>(true);
+  const [crossfade, setCrossfade] = useState<boolean>(false);
   const [crossfadeDuration, setCrossfadeDuration] = useState<number>(1.0);
   const [masterVideoVolume, setMasterVideoVolume] = useState<number>(1.0);
   const [soundtrackVolume, setSoundtrackVolume] = useState<number>(0.8);
@@ -267,7 +267,10 @@ export const VideoMergerStudio: React.FC<VideoMergerStudioProps> = ({
         accept="video/*,image/*,audio/*"
         className="hidden"
         onChange={(e) => {
-          if (e.target.files) handleProcessIncomingFiles(e.target.files);
+          if (e.target.files) {
+            handleProcessIncomingFiles(e.target.files);
+            e.target.value = ''; // reset so same file can be re-selected
+          }
         }}
       />
 
