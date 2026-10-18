@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  ShieldCheck,
   Heart,
   Sun,
   Moon,
   Globe,
   Film,
   ChevronDown,
-  Sparkles,
 } from 'lucide-react';
 import {
   type LanguageCode,
@@ -100,17 +98,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentLang }) => {
               </span>
             </div>
           </a>
-
-          {/* 100% Private Badge - Collapses strictly to icon on mobile/tablet */}
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage-400/15 dark:bg-sage-400/10 border border-sage-400/30 text-moss-600 dark:text-sage-300"
-            title="100% Private • Zero-Server Uploads"
-          >
-            <ShieldCheck className="w-4 h-4 text-moss-600 dark:text-sage-400 shrink-0" />
-            <span className="hidden lg:inline text-xs font-medium tracking-wide">
-              {t.nav.privacyBadge}
-            </span>
-          </div>
         </div>
 
         {/* Right Section: Language Selector, Theme Switcher, Support CTA */}
