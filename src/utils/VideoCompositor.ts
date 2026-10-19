@@ -440,6 +440,45 @@ export class VideoCompositor {
     const frameIntervalMs = 1000 / fps;
     const startTime = performance.now();
 
+    // Helper to start video playback cleanly and wait for genuine hardware paint
+    const startVideo = async (video: HTMLVideoElement, startTime: number) => {
+      video.pause();
+      video.currentTime = startTime;
+
+      await new Promise<void>((resolve) => {
+        if (!video.seeking && video.readyState >= 2) {
+          resolve();
+          return;
+        }
+        const onSeeked = () => {
+          video.removeEventListener('seeked', onSeeked);
+          video.removeEventListener('error', onSeeked);
+          resolve();
+        };
+        video.addEventListener('seeked', onSeeked, { once: true });
+        video.addEventListener('error', onSeeked, { once: true });
+        setTimeout(onSeeked, 600);
+      });
+
+      try {
+        await video.play();
+      } catch {}
+
+      // Wait until playback has genuinely commenced
+      await new Promise<void>((resolve) => {
+        if (!video.paused && video.readyState >= 3) {
+          resolve();
+          return;
+        }
+        const onPlaying = () => {
+          video.removeEventListener('playing', onPlaying);
+          resolve();
+        };
+        video.addEventListener('playing', onPlaying, { once: true });
+        setTimeout(onPlaying, 400);
+      });
+    };
+
     let currentPlayingClipId: string | null = null;
     let nextPlayingClipId: string | null = null;
 
@@ -468,33 +507,20 @@ export class VideoCompositor {
 
         const primaryRange = clipRanges[primaryIndex];
         const primaryClip = primaryRange.clip;
-        const primaryLocalTime = Math.max(
-          0,
-          Math.min(primaryClip.duration, time - primaryRange.start + primaryClip.trimStart)
-        );
 
-        // Drive primary video playback forward continuously without random seeks
-        if (primaryClip.type === 'video') {
-          const v = videoElements.get(primaryClip.id);
-          if (v) {
-            if (currentPlayingClipId !== primaryClip.id) {
-              if (currentPlayingClipId) {
-                const oldV = videoElements.get(currentPlayingClipId);
-                oldV?.pause();
-              }
-              v.currentTime = primaryLocalTime;
-              try {
-                await v.play();
-              } catch {}
-              currentPlayingClipId = primaryClip.id;
-            } else if (v.paused) {
-              try {
-                await v.play();
-              } catch {}
-            } else if (Math.abs(v.currentTime - primaryLocalTime) > 0.4) {
-              v.currentTime = primaryLocalTime;
+        // Transition to new primary clip when needed (single clean start, zero mid-stream seeks)
+        if (currentPlayingClipId !== primaryClip.id) {
+          if (currentPlayingClipId) {
+            const oldV = videoElements.get(currentPlayingClipId);
+            oldV?.pause();
+          }
+          if (primaryClip.type === 'video') {
+            const v = videoElements.get(primaryClip.id);
+            if (v) {
+              await startVideo(v, primaryClip.trimStart);
             }
           }
+          currentPlayingClipId = primaryClip.id;
         }
 
         // Crossfade transition check
@@ -510,27 +536,13 @@ export class VideoCompositor {
             (time - (primaryRange.end - effectiveTransition)) / effectiveTransition;
 
           const nextClip = nextRange.clip;
-          const nextLocalTime = Math.max(
-            0,
-            Math.min(nextClip.duration, time - nextRange.start + nextClip.trimStart)
-          );
 
+          // Start incoming clip playback once (zero mid-stream seeks)
           if (nextClip.type === 'video') {
             const nextV = videoElements.get(nextClip.id);
-            if (nextV) {
-              if (nextPlayingClipId !== nextClip.id) {
-                nextV.currentTime = nextLocalTime;
-                try {
-                  await nextV.play();
-                } catch {}
-                nextPlayingClipId = nextClip.id;
-              } else if (nextV.paused) {
-                try {
-                  await nextV.play();
-                } catch {}
-              } else if (Math.abs(nextV.currentTime - nextLocalTime) > 0.4) {
-                nextV.currentTime = nextLocalTime;
-              }
+            if (nextV && nextPlayingClipId !== nextClip.id) {
+              await startVideo(nextV, nextClip.trimStart);
+              nextPlayingClipId = nextClip.id;
             }
           }
 
@@ -550,6 +562,7 @@ export class VideoCompositor {
             drawElementWithCropMode(ctx, nextEl, width, height, cropMode, progress);
           }
         } else {
+          // Pause secondary clip once transition finishes
           if (nextPlayingClipId) {
             const oldNextV = videoElements.get(nextPlayingClipId);
             oldNextV?.pause();
@@ -579,7 +592,7 @@ export class VideoCompositor {
 
         // Backpressure check: prevent GPU encoder queue overflow
         while (videoEncoder.encodeQueueSize > 5) {
-          await new Promise((resolve) => setTimeout(resolve, 8));
+          await new Promise((resolve) => setTimeout(resolve, 6));
         }
 
         const percent = Math.min(97, Math.round((frameIndex / totalFrames) * 88) + 10);
@@ -591,7 +604,7 @@ export class VideoCompositor {
           message: `Compositing frame ${frameIndex + 1} of ${totalFrames} (${percent}%)...`,
         });
 
-        // Pace clock to match video frame rate
+        // Pace clock to match video frame rate precisely
         const expectedTimeMs = (frameIndex + 1) * frameIntervalMs;
         const actualTimeMs = performance.now() - startTime;
         const waitMs = expectedTimeMs - actualTimeMs;
