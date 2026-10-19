@@ -8,6 +8,7 @@ import {
   Sparkles,
   Film,
   HardDrive,
+  Heart,
 } from 'lucide-react';
 import {
   type CompositorProgress,
@@ -189,6 +190,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             >
               {t.export.close}
             </button>
+
+            <a
+              href="https://ko-fi.com/kishara"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex items-center gap-1.5 text-xs text-olive-600 dark:text-sage-300 hover:text-moss-800 dark:hover:text-sand-100 transition-colors group"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/30 group-hover:scale-110 transition-transform" />
+              <span>{t.nav.supportDeveloper} (Ko-fi)</span>
+            </a>
           </div>
         )}
       </div>
