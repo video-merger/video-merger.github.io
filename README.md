@@ -215,8 +215,8 @@ The output will be generated in the `dist/` directory, ready for instant zero-co
 Merge Videos is completely free, open-source, and does not display ads or track your private files. If this tool helped you, consider supporting its continuous development:
 
 <p align="center">
-  <a href="https://ko-fi.com/kishara" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/kofi3.png?v=3" alt="Support me on Ko-fi" height="40" style="border-radius: 8px;" />
+  <a href="https://kisharadilshan.gumroad.com/coffee" target="_blank">
+    <img src="https://img.shields.io/badge/Support%20the%20Developer-Gumroad-orange?style=for-the-badge&logo=gumroad" alt="Support the Developer on Gumroad" height="40" style="border-radius: 8px;" />
   </a>
 </p>
 

@@ -175,11 +175,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentLang }) => {
 
           {/* Support Developer CTA Button - Collapses strictly to icon on mobile/tablet */}
           <a
-            href="https://ko-fi.com/kishara"
+            href="https://kisharadilshan.gumroad.com/coffee"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs sm:text-sm bg-gradient-to-r from-sand-300 via-sage-400 to-sand-300 dark:from-sand-300 dark:to-sage-400 text-moss-800 dark:text-studio-surface shadow-sm hover:brightness-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-sand-300"
-            title="Support the Developer on Ko-fi"
+            title="Support the Developer"
           >
             <Heart className="w-4 h-4 fill-current text-moss-800 dark:text-studio-surface shrink-0" />
             <span className="hidden lg:inline">{t.nav.supportDeveloper}</span>
